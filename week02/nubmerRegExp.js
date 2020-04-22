@@ -9,7 +9,7 @@
 // NaN
 
 function testNumber(str) {
-    const reg = /(^(\+|-|\.)?[0-9]*((\.[0-9]*|e-?\+?[0-9]+)|(\.[0-9]*[0-9]+e-?\+?[0-9]+))?$)|(^0(x|X)([0-9]+|[a-f]+|[A-F]+)$)|(^0(b|B)([0-1]+)$)|(^0(o|O)([0-7]+)$)|Infinity|NaN/;
+    const reg = /(^(\+|-|\.)?[0-9]*((\.[0-9]*|([eE])-?\+?[0-9]+)|(\.[0-9]*[0-9]+[eE]-?\+?[0-9]+))?$)|(^0(x|X)([0-9]+|[a-f]+|[A-F]+)$)|(^0(b|B)([0-1]+)$)|(^0(o|O)([0-7]+)$)|Infinity|NaN/;
     return reg.test(str);
 }
 
@@ -17,7 +17,7 @@ function expect(a, b) {
     if (testNumber(a) === b) {
         console.log(a, 'pass');
     } else {
-        console.log(a, 'faild, expect to ' + b, ', return ' + testNumber(a));
+        console.log(a, 'failed, expect to ' + b, ', return ' + testNumber(a));
     }
 }
 
