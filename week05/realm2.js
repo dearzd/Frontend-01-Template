@@ -55,6 +55,7 @@ for (let p of objects) {
         path: [p],
         object: this[p]
     })
+}
 //console.log(queue);
 
 let current;
