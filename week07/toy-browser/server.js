@@ -39,10 +39,11 @@ const server = http.createServer((req, res) => {
             display: flex;
             width: 500px;
             height: 300px;
-            background-color: rgb(255, 255, 255);
+            background-color: rgb(255, 255, 0);
         }
         #container #myId2 {
             width: 200px;
+            height: 100px;
             background-color: rgb(255, 0, 0);
         }
         #container .c1 {

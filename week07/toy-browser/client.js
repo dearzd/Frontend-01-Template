@@ -1,25 +1,6 @@
 const net = require('net');
-const parser = require('./parser.js');
-const images = require("images");
-
-function render(viewPort, element) {
-    if (element.style) {
-        let img = images(element.style.width, element.style.height);
-
-        if (element.style['background-color']) {
-            let color = element.style['background-color'] || 'rgb(0, 0, 0)';
-            color.match(/rgb\((\d+), (\d+), (\d+)\)/);
-            img.fill(Number(RegExp.$1), Number(RegExp.$2), Number(RegExp.$2));
-            viewPort.draw(img, element.style.left || 0, element.style.top || 0);
-        }
-    }
-
-    if (element.children) {
-        element.children.forEach(child => {
-            render(viewPort, child);
-        });
-    }
-}
+const HTMLParser = require('./HTMLParser.js');
+const render = require('./render.js');
 
 class Request {
     // method, url = host + port + path
@@ -252,12 +233,9 @@ void async function() {
 
     let response = await request.send();
 
-    let dom = parser.parseHTML(response.body);
+    let dom = HTMLParser.parseHTML(response.body);
 
-    let viewPort = images(800, 600);
-    render(viewPort, dom.children[0].children[3].children[1].children[5]);
-    viewPort.save('image.jpg');
-
+    render(dom);
     //console.log(response);
 }();
 
