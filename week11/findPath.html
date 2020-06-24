@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #container {
+            width: 701px;
+            margin: auto;
+            font-size: 0;
+        }
+        .cell {
+            display: inline-block;
+            vertical-align: bottom;
+            width: 6px;
+            height: 6px;
+            background-color: lightgray;
+            border-right: 1px solid white;
+            border-bottom: 1px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <button onClick="localStorage.map = JSON.stringify(map)">Save</button>
+    <script>
+        class BinaryHeap {
+            constructor(data, compare) {
+                this.data = [];
+                this.compare = compare;
+
+                if (data && data.length) {
+                    data.forEach(v => this.insert(v));
+                }
+            }
+
+            take() {
+                if (!this.data || !this.data.length)  return;
+
+                let min = this.data[0];
+                let i = 0;
+                let minChildIndex = this.minChildIndex(i);
+
+                // heapify down
+                this.data[i] = this.data[this.data.length - 1];
+                const temp = this.data[i];
+                while (i < this.data.length && minChildIndex !== void 0 && this.compare(temp, this.data[minChildIndex]) > 0) {
+                    this.data[i] = this.data[minChildIndex];
+                    i = minChildIndex;
+                    minChildIndex = this.minChildIndex(i);
+                }
+                this.data[i] = temp;
+
+                this.data.pop();
+
+                return min;
+            }
+
+            insert(v) {
+                this.data.push(v);
+                let i = this.data.length - 1;
+                let parentIndex = this.parentIndex(i);
+
+                // heapify up
+                while (parentIndex >= 0 && this.compare(this.data[parentIndex], v) > 0) {
+                    this.data[i] = this.data[parentIndex];
+                    i = parentIndex;
+                    parentIndex = this.parentIndex(i);
+                }
+
+                this.data[i] = v;
+            }
+
+            minChildIndex(i) {
+                const leftChildIndex = this.childIndex(i, 0);
+                const rightChildIndex = this.childIndex(i, 1);
+                if (leftChildIndex < this.data.length && rightChildIndex < this.data.length) {
+                    return this.compare(this.data[leftChildIndex], this.data[rightChildIndex]) < 0 ? leftChildIndex : rightChildIndex;
+                } else {
+                    return (
+                        leftChildIndex < this.data.length ? leftChildIndex :
+                        rightChildIndex < this.data.length ? rightChildIndex : void 0
+                    );
+                }
+            }
+
+            childIndex(i, j) {
+                return 2 * i + j + 1;
+            }
+
+            parentIndex(i) {
+                return Math.floor((i - 1) / 2);
+            }
+
+            get length() {
+                return this.data.length;
+            }
+        }
+
+        // let heap = new BinaryHeap([2, 1, 0, 9, 5, 9, 22, 23], (a, b) => a - b);
+
+        class Sorted {
+            constructor(data, compare) {
+                this.data = data;
+                this.compare = compare;
+            }
+
+            take() {
+                if (!this.data || !this.data.length)  return;
+
+                let min = this.data[0];
+                let minIndex = 0;
+
+                for (let i = 0; i < this.data.length; i++) {
+                    if (this.compare(this.data[i], min) < 0) {
+                        min = this.data[i];
+                        minIndex = i;
+                    }
+                }
+
+                this.data[minIndex] = this.data[this.data.length - 1];
+                this.data.pop();
+
+                return min;
+            }
+
+            insert(v) {
+                this.data.push(v);
+            }
+
+            get length() {
+                return this.data.length;
+            }
+        }
+
+        let map = localStorage.map ? JSON.parse(localStorage.map) : new Array(10000).fill(0);
+        let container = document.getElementById('container');
+
+        void function init() {
+            let mouseDown = false;
+            let clear = false;
+
+            for (let y = 0; y < 100; y++) {
+                for (let x = 0; x < 100; x++) {
+                    let cell =document.createElement('div');
+                    cell.className = 'cell';
+
+                    if (map[y * 100 + x]) {
+                        cell.style.background = 'black';
+                    }
+
+                    cell.addEventListener('mousemove', () => {
+                        if (mouseDown) {
+                            cell.style.background = clear ? '' : 'black';
+                            map[y * 100 + x] = clear ? 0 : 1;
+                        }
+                    });
+                    cell.addEventListener('click', () => {
+                        console.log(y, x);
+                    });
+
+                    container.appendChild(cell);
+                }
+            }
+
+            document.addEventListener('mousedown', e => {
+                mouseDown = true;
+                clear = e.button === 2;
+            });
+            document.addEventListener('mouseup', () => mouseDown = false);
+            document.addEventListener('contextmenu', e => e.preventDefault());
+        }();
+
+        function sleep(time) {
+            return new Promise(resolve => setTimeout(resolve, time));
+        }
+
+        function highlight(x, y, color) {
+            container.children[y * 100 + x].style.backgroundColor = color;
+        }
+
+        async function findPath(start, end) {
+            highlight(start[0], start[1], 'yellow');
+            highlight(end[0], end[1], 'red');
+
+            let mapCopy = map.slice();
+
+            function distance([x, y]) {
+                return (x - end[0]) ** 2 + (y - end[1]) ** 2;
+            }
+
+            // let queue = [start]; // push shift; unshift pop
+            // let stack = [start];
+            let collection = new BinaryHeap([start], (a, b) => distance(a) - distance(b));
+
+            async function insert([x, y], pre) {
+                if (x < 0 || x >= 100 || y < 0 || y >= 100) return;
+                if (mapCopy[y * 100 + x] !== 0) return;
+                // if (x === start[0] && y === start[1]) return;
+
+                mapCopy[y * 100 + x] = pre;
+
+                highlight(x, y, 'violet');
+
+                await sleep(5);
+
+                // queue.push([x, y]);
+                // stack.push([x, y]);
+                collection.insert([x, y]);
+            }
+
+            while (collection.length) {
+                // let [x, y] = queue.shift();
+                // let [x, y] = queue.pop();
+                let [x, y] = collection.take();
+
+                if (x === end[0] && y === end[1]) {
+                    let path = [];
+                    while (x !== start[0] || y !== start[1]) {
+                        path.push([x, y]);
+                        await sleep(10);
+                        highlight(x, y, 'green');
+                        [x, y] = mapCopy[y * 100 + x];
+                    }
+                    // console.log(mapCopy);
+                    return path;
+                }
+
+                await insert([x - 1, y], [x, y]);
+                await insert([x + 1, y], [x, y]);
+                await insert([x, y - 1], [x, y]);
+                await insert([x, y + 1], [x, y]);
+
+                /*await insert([x - 1, y - 1], [x, y]);
+                await insert([x + 1, y - 1], [x, y]);
+                await insert([x - 1, y - 1], [x, y]);
+                await insert([x + 1, y + 1], [x, y]);*/
+
+                /*if (mapCopy[y * 100 + x - 1] === 0 || mapCopy[(y - 1) * 100 + x] === 0) {
+                    await insert([x - 1, y - 1], [x, y]);
+                }
+                if (mapCopy[y * 100 + x + 1] === 0 || mapCopy[(y - 1) * 100 + x] === 0) {
+                    await insert([x + 1, y - 1], [x, y]);
+                }
+                if (mapCopy[y * 100 + x - 1] === 0 || mapCopy[(y + 1) * 100 + x] === 0) {
+                    await insert([x - 1, y + 1], [x, y]);
+                }
+                if (mapCopy[y * 100 + x + 1] === 0 || mapCopy[(y + 1) * 100 + x] === 0) {
+                    await insert([x + 1, y + 1], [x, y]);
+                }*/
+            }
+
+            return false;
+        }
+    </script>
+</body>
+</html>
