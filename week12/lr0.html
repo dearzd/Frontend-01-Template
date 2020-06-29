@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>lr0</title>
+</head>
+<body>
+    <script>
+        function parse(source) {
+            let stack = [];
+            let left = ['(', '[', '{'];
+            let right = [')', ']', '}'];
+            for (let c of source) {
+                if (left.indexOf(c) >= 0) {
+                    stack.push(c);
+                } else {
+                    let index = right.indexOf(c);
+                    if (index >= 0) {
+                        if (stack[stack.length - 1] === left[index]) {
+                            stack.pop();
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+            }
+            /*for (let c of source) {
+                if (c === '(' || c === '[' || c === '{') {
+                    stack.push(c);
+                }
+                if (c === ')') {
+                    if (stack[stack.length - 1] === '(') {
+                        stack.pop();
+                    } else {
+                        return false;
+                    }
+                }
+                if (c === ']') {
+                    if (stack[stack.length - 1] === '[') {
+                        stack.pop();
+                    } else {
+                        return false;
+                    }
+                }
+                if (c === '}') {
+                    if (stack[stack.length - 1] === '{') {
+                        stack.pop();
+                    } else {
+                        return false;
+                    }
+                }
+            }*/
+            return stack.length === 0;
+        }
+    </script>
+</body>
+</html>
