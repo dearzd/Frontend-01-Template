@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Draggable</title>
+</head>
+<body>
+    <div id="container">
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+        文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字
+    </div>
+    <div id="draggable" style="display: inline-block; width: 100px; height: 100px; background: violet;"></div>
+    <script>
+        let draggable = document.getElementById('draggable');
+
+        let positionX = 0;
+        let positionY = 0;
+
+        draggable.addEventListener('mousedown', (event) => {
+            const startX = event.clientX;
+            const startY = event.clientY;
+
+            const handleMove = event => {
+                /*const x = positionX + event.clientX - startX;
+                const y = positionY + event.clientY - startY;
+                draggable.style.transform = `translate(${x}px, ${y}px)`;*/
+                const range = nearest(event.clientX, event.clientY);
+                range.insertNode(draggable);
+            };
+            const handleUp = event => {
+                positionX = positionX + event.clientX - startX;
+                positionY = positionY + event.clientY - startY;
+
+                document.removeEventListener('mousemove', handleMove);
+                document.removeEventListener('mouseup', handleUp);
+                document.removeEventListener('selectstart', disableSelect);
+            };
+            const disableSelect = event => event.preventDefault();
+
+            document.addEventListener('mousemove', handleMove);
+            document.addEventListener('mouseup', handleUp);
+            document.addEventListener('selectstart', disableSelect);
+
+        });
+
+        let ranges = [];
+        let container = document.getElementById('container');
+        for (let i = 0; i < container.childNodes[0].textContent.length; i++) {
+            let range = document.createRange();
+            range.setStart(container.childNodes[0], i);
+            range.setEnd(container.childNodes[0], i);
+            ranges.push(range);
+            console.log(range);
+        }
+
+        function nearest(x0, y0) {
+            let nearestRange = null;
+            let distance = Infinity;
+            for (let range of ranges) {
+                let {x, y} = range.getBoundingClientRect();
+                let d = (x0 - x) ** 2 + (y0 - y) ** 2;
+                if (d < distance) {
+                    nearestRange = range;
+                    distance = d;
+                }
+            }
+            return nearestRange;
+        }
+    </script>
+</body>
+</html>
