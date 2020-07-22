@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div id="el" style="width: 100px; height: 100px; background: violet"></div>
+    <button id="btn1">Start</button>
+    <button id="btn2">Stop</button>
+    <script>
+        let ele = document.getElementById('el');
+        let startX = ele.getBoundingClientRect().left;
+        let startY = ele.getBoundingClientRect().top;
+        console.log(startX, startY);
+
+        ele.style.transition = 'ease 5s';
+
+        function start() {
+            ele.style.transform = 'translate(300px, 300px)';
+        }
+
+        function stop() {
+            // ele.style.transition = 'none';
+            let left = ele.getBoundingClientRect().left - startX;
+            let top = ele.getBoundingClientRect().top - startY;
+            console.log(left, top);
+            ele.style.transform = `translate(${left}px, ${top}px)`;
+        }
+
+        document.getElementById('btn1').addEventListener('click', () => start());
+        document.getElementById('btn2').addEventListener('click', () => stop());
+    </script>
+</body>
+</html>

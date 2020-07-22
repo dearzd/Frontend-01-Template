@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .ele {
+            width: 100px;
+            height: 100px;
+            background: violet;
+        }
+        #ele {
+
+        }
+        #ele1-compare {
+            transition: transform ease 2s;
+        }
+        #ele2 {
+            background: skyblue;
+            border-radius: 50%;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="ele1" class="ele">JS Animation</div>
+    <div id="ele1-compare" class="ele">CSS Animation</div>
+    <div id="ele2" class="ele">JS Color Animation</div>
+
+    <button id="button1">Start</button>
+    <button id="button2">Pause</button>
+    <button id="button3">Resume</button>
+    <button id="button4">Restart</button>
+    <button id="button5">Div2 start</button>
+
+    <script type="module">
+        import {Timeline, Animation, ColorAnimation} from './animation.js';
+        import {cubicBezier} from './cubicBezier.js';
+
+        const duration = 2000;
+        const linear = t => t;
+        const ease = cubicBezier(.25,.1,.25,1);
+
+        let ele1 = document.getElementById('ele1');
+        let ele1Compare = document.getElementById('ele1-compare');
+        let ele1CompareStartX = ele1Compare.getBoundingClientRect().left;
+        let ele1CompareStartY = ele1Compare.getBoundingClientRect().top;
+
+        let tl = new Timeline();
+
+        tl.add(new Animation({
+            object: ele1.style,
+            property: 'transform',
+            start: 0,
+            end: 200,
+            duration: duration,
+            delay: 0,
+            timingFunction: ease,
+            template: v => `translateX(${v}px)`
+        }));
+
+        // tl.start();
+        // ele1Compare.style.transform = `translateX(200px)`;
+
+        document.getElementById('button1').addEventListener('click', () => {
+            tl.start();
+            ele1Compare.style.transform = `translateX(200px)`;
+        });
+        document.getElementById('button2').addEventListener('click', () => {
+            tl.pause();
+            let left = ele1Compare.getBoundingClientRect().left - ele1CompareStartX;
+            let top = ele1Compare.getBoundingClientRect().top - ele1CompareStartY;
+            ele1Compare.style.transform = `translate(${left}px, ${top}px)`;
+        });
+        document.getElementById('button3').addEventListener('click', () => {
+            tl.resume();
+            ele1Compare.style.transform = `translateX(200px)`;
+        });
+        document.getElementById('button4').addEventListener('click', () => {
+            ele1Compare.style.transition = '0s'; // disable div transition
+            ele1Compare.style.transform = `translateX(0)`;
+            setTimeout(() => {
+                tl.restart();
+                ele1Compare.style.transition = ''; // open div transition
+                ele1Compare.style.transform = `translateX(200px)`;
+            }, 16);
+        });
+
+        let ele2 = document.getElementById('ele2');
+        document.getElementById('button5').addEventListener('click', () => {
+            tl.add(new ColorAnimation({
+                object: ele2.style,
+                property: 'backgroundColor',
+                start: {r: 0, g: 0, b: 0, a: 1},
+                end: {r: 255, g: 0, b: 0, a: 1},
+                duration: duration,
+                delay: 0,
+                timingFunction: ease
+            }));
+            tl.start();
+        });
+    </script>
+</body>
+</html>
